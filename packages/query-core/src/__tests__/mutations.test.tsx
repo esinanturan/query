@@ -397,8 +397,8 @@ describe('mutations', () => {
     const onSuccess = vi.fn()
 
     const mutation = new MutationObserver(queryClient, {
-      mutationFn: () => {
-        sleep(100)
+      mutationFn: async () => {
+        await sleep(100)
         return Promise.resolve('update')
       },
       onSuccess: () => {
@@ -409,8 +409,8 @@ describe('mutations', () => {
     void mutation.mutate()
 
     mutation.setOptions({
-      mutationFn: () => {
-        sleep(100)
+      mutationFn: async () => {
+        await sleep(100)
         return Promise.resolve('update')
       },
       onSuccess: () => {
@@ -418,7 +418,8 @@ describe('mutations', () => {
       },
     })
 
-    await vi.waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1))
+    await vi.advanceTimersByTimeAsync(100)
+    expect(onSuccess).toHaveBeenCalledTimes(1)
 
     expect(onSuccess).toHaveBeenCalledWith(2)
   })
@@ -533,7 +534,7 @@ describe('mutations', () => {
     ])
   })
 
-  test('each scope should run should run in parallel, serial within scope', async () => {
+  test('each scope should run in parallel, serial within scope', async () => {
     const results: Array<string> = []
 
     executeMutation(
